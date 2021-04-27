@@ -1,5 +1,5 @@
-var figure = 'S';
-//var figure = 'Z';
+//var figure = 'S';
+var figure = 'Z';
 //var figure = '0';
 //var figure = 'P';
 //var figure = 'C';

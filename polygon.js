@@ -19,23 +19,14 @@ function fillPolygon(pts, vertices){
 
 
 function intersectPolygon(s0, s1, polygon){
-	// rewrite the polygon st it contains intersection points and edges
-	//console.log('original: ');
-	//console.log(polygon);
+
 	var newPolygon = {
 		size: polygon.points.length,
-		//points: [],
 		points: new Map(),
 		edges: new Map()
 	};
 
 	function addPoint(p, id){
-		//console.log('Adding point: ' + id);
-		/*newPolygon.points.push({
-			x: p.x,
-			y: p.y,
-			id: id
-		});*/
 		newPolygon.points.set(id, {x: p.x, y: p.y});
 	}
 
@@ -98,6 +89,13 @@ function intersectPolygon(s0, s1, polygon){
     });
 	}
 
+	function allCoincident(intersections){
+		for(var i=0; i<intersections.length; i++)
+			if(intersections[i].type != 'coincident')
+				return false;
+		return true;
+	}
+
 
 	var inters = [];
 	var length = polygon.points.length;
@@ -118,6 +116,7 @@ function intersectPolygon(s0, s1, polygon){
 			addEdge(i, j);
 			
 		}else{
+			//console.log('intersecting ' + i + '=>' + j);
 			// add as point the intersection first A-X-B
 			if(i === 0)
 				addPoint(a, i);
@@ -165,30 +164,57 @@ function intersectPolygon(s0, s1, polygon){
 	var nIntersections = counter - length; // intersections.length
 	// adding inner edges between intersection points couplewise	
 	ordered = inters.sort(compareIntersections);
+	
+	/*
+	// if all the intersections are coincident, the segment is collinear 
+	if(allCoincident(ordered)){
+		//console.log('all coincident!');
+		return {
+			intersections: null, 
+			polygon: newPolygon
+		};
+	}
+	*/
+
 	if(ordered.length > 3){
 		for(var i=0; i<ordered.length; i+=2){
 			if(i == ordered.length-1)
 				break;
+			//console.log('linking: ' + ordered[i].id + '->' + ordered[i+1].id + ', ' + ordered[i+1].id + '->' + ordered[i].id);
 			addEdge(ordered[i].id, ordered[i+1].id);
 			addEdge(ordered[i+1].id, ordered[i].id);
+			// add also previous link
+			if(ordered[i].type == 'coincident' && i>0){
+				//console.log('linking: ' + ordered[i].id + '->' + ordered[i-1].id + ', ' + ordered[i-1].id + '->' + ordered[i].id);
+				addEdge(ordered[i].id, ordered[i-1].id);
+				addEdge(ordered[i-1].id, ordered[i].id);
+			}
 		}
 	// only 2 intersections
 	}else{ 
+		//console.log('one couple');
 		ordered = removeCoincident(ordered);
 		addEdge(ordered[0].id, ordered[1].id);
 		addEdge(ordered[1].id, ordered[0].id);
 	}
 
-	//console.log('Ordered: ');
 	// remove duplicates now
 	ordered = removeCoincident(ordered);
+	//console.log('Ordered: ');
 	//console.log(ordered); 
-	//console.log('Edges: ');
-	//console.log(newPolygon.edges);
-	return {
-		intersections: ordered, 
-		polygon: newPolygon
-	};
+	
+	// if all the intersections are coincident, the segment is collinear 
+	if(allCoincident(ordered))
+		//console.log('all coincident!');
+		return {
+			intersections: null, 
+			polygon: newPolygon
+		};
+	else
+		return {
+			intersections: ordered, 
+			polygon: newPolygon
+		};
 }
 
 
@@ -212,6 +238,7 @@ function visitPolygon(polygon, intersections){
 	}
 
 	function notInPath(vertex){
+		// true if not in path, false otherwise
 		return path.indexOf(vertex) == -1;
 	}
 
@@ -325,6 +352,64 @@ function visitPolygon(polygon, intersections){
 	//console.log('Polygons: ');
 	//console.log(polygons);
 	return polygons;
+}
+
+
+function partitionLine(s0, s1, polygon){
+	
+	function aboveLine(s0, s1, p){
+		// find normal equation 
+		var A = s1.y - s0.y;
+		var	B = s0.x - s1.x;
+		var	C = A * s0.x + B * s0.y;
+		var numerator = A*p.x + B*p.y + C;
+		// vertical line
+		if(B == 0){
+			// right wrt the line
+			if(p.x > s0.x)
+				return 1;
+			// left wrt the line
+			else if(p.x < s0.x)
+				return -1;
+			// on the line
+			else
+				return 0;
+		}else{
+			// above the line
+			if((numerator>0 && B>0) || (numerator<0 && B<0))
+				return 1;
+			// below the line
+			else if((numerator<0 && B>0) ||(numerator>0 && B<0))
+				return -1;
+			// on the line
+			else if(numerator == 0)
+				return 0;
+		}
+	}
+
+	var partA = [];
+	var partB = [];
+	for(var i=0; i<polygon.points.size; i++){
+		var point = polygon.points.get(i);
+		var nEdges = polygon.edges.get(i).length;
+		// if vertex is linked to 2 or more, it belongs to both partitions (unless start vertex)
+		if(i>0 && nEdges>=2){
+			partA.push(i);
+			partB.push(i);
+		}
+		else if(aboveLine(s0, s1, point) >= 0)
+			partA.push(i);
+		else if(aboveLine(s0, s1, point) <= 0)
+			partB.push(i);
+	}
+	//console.log('Partitions: ');
+	//console.log([partA, partB]);
+	if(partA.length > 2 && partB.length > 2)
+		return [partA, partB];
+	else if(partA.length > 2)
+		return [partA];
+	else if(partB.length > 2)
+		return [partB];
 
 
 }

@@ -1,5 +1,5 @@
-//var figure = 'S';
-var figure = 'Z';
+var figure = 'S';
+//var figure = 'Z';
 //var figure = '0';
 //var figure = 'P';
 //var figure = 'C';
@@ -79,8 +79,12 @@ if(figure == 'S'){
 	];
 	var polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 	var segment = [
+		// vertical line 
 		{x: 300, y: 200},
-		{x: 300, y: 800}
+		{x: 300, y: 600}
+		// horizontal line
+		//{x: 200, y: 100},
+		//{x: 600, y: 100}
 	];
 }else{ // default polygon
 	var points = [
@@ -121,21 +125,41 @@ window.onload = function() {
 		clickPoint.x = event.clientX;
 		clickPoint.y = height - event.clientY;
 		//clickPoint.y = event.clientY;
+
+		intersectedPolygon = intersectPolygon(s1, s2, polygon);
+		intersections = intersectedPolygon.intersections;
+		newPoly = intersectedPolygon.polygon;
+
+		// normal case
+		if(intersections)
+			polygonz = visitPolygon(newPoly, intersections);
+		// collinear or no intersection case
+		else
+			polygonz = partitionLine(s1, s2, newPoly);
+
 		render(partitions=false);
 	}
 
 	function onMouseUp(event) {
 		document.body.removeEventListener("mousemove", onMouseMove);
 		document.body.removeEventListener("mouseup", onMouseUp);
+		
 		console.log('\n---------- Recomputing ----------');
-		//console.log(intersections);
 		intersectedPolygon = intersectPolygon(s1, s2, polygon);
 		intersections = intersectedPolygon.intersections;
 		newPoly = intersectedPolygon.polygon;
-		//console.log(newPoly);
-		polygonz = visitPolygon(newPoly, intersections);
+
+		// normal case
+		if(intersections)
+			polygonz = visitPolygon(newPoly, intersections);
+		// collinear or no intersection case
+		else
+			polygonz = partitionLine(s1, s2, newPoly);
+			
 		console.log('\nPolygons: ');
 		console.log(polygonz);
+		console.log('\n');
+
 		render(partitions=true);
 	}
 
@@ -157,18 +181,12 @@ window.onload = function() {
 	/* ---------- Drawing Functions ---------- */
 	function render(partitions=true) {
 		context.clearRect(0, 0, width, height);
-		
-		//intersections = segmentPolyIntersect(s1, s2, polygon);
-		intersectedPolygon = intersectPolygon(s1, s2, polygon);
-		intersections = intersectedPolygon.intersections;
-		newPoly = intersectedPolygon.polygon;
-		polygonz = visitPolygon(newPoly, intersections);
-
 
 		// draw polygon
 		drawPoly(polygon);
 		if(partitions)
 			drawPartitions(newPoly.points, polygonz);
+
 
 		//console.log(intersections);
 		if(intersections){
@@ -176,8 +194,8 @@ window.onload = function() {
 				drawIntersection(intersections[i], name=intersections[i].id);
 				drawExtended(s1, s2, intersections[i]);
 			}
-		}else
-			console.log("No Intersection!");
+		}/*else
+			console.log("No Intersection!");*/
 
 		drawPoint(s1);
 		drawPoint(s2);
@@ -320,8 +338,6 @@ window.onload = function() {
 	}
 
 	
-
-	
 /* ---------- MAIN ---------- */
 	var canvas = document.getElementById("canvas"),
 			context = canvas.getContext("2d"),
@@ -347,7 +363,6 @@ window.onload = function() {
 	polygon = fillPolygon(points, polygonVertices);
 	console.log('Polygon: ');
 	console.log(polygon);
-	console.log('\n');
 
 	// segment
 	var s1 = segment[0];
@@ -357,12 +372,17 @@ window.onload = function() {
 	intersectedPolygon = intersectPolygon(s1, s2, polygon);
 	intersections = intersectedPolygon.intersections;
 	newPoly = intersectedPolygon.polygon;
-	console.log(newPoly);
 
-	//intersections, newPoly = intersectPolygon(s1, s2, polygon);
-	polygonz = visitPolygon(newPoly, intersections);
+	// normal case
+	if(intersections)
+		polygonz = visitPolygon(newPoly, intersections);
+	// collinear or no intersection case
+	else
+		polygonz = partitionLine(s1, s2, newPoly);
+		
 	console.log('\nPolygons: ');
 	console.log(polygonz);
+	console.log('\n');
 
 	// rendering scene
 	render();

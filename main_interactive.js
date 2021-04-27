@@ -121,7 +121,7 @@ window.onload = function() {
 		clickPoint.x = event.clientX;
 		clickPoint.y = height - event.clientY;
 		//clickPoint.y = event.clientY;
-		render();
+		render(partitions=false);
 	}
 
 	function onMouseUp(event) {
@@ -136,6 +136,7 @@ window.onload = function() {
 		polygonz = visitPolygon(newPoly, intersections);
 		console.log('\nPolygons: ');
 		console.log(polygonz);
+		render(partitions=true);
 	}
 
 	// check if mouse clicked over handles
@@ -154,7 +155,7 @@ window.onload = function() {
 	/* ---------- // ---------- */
 
 	/* ---------- Drawing Functions ---------- */
-	function render() {
+	function render(partitions=true) {
 		context.clearRect(0, 0, width, height);
 		
 		//intersections = segmentPolyIntersect(s1, s2, polygon);
@@ -166,7 +167,8 @@ window.onload = function() {
 
 		// draw polygon
 		drawPoly(polygon);
-		drawPartitions(newPoly.points, polygonz);
+		if(partitions)
+			drawPartitions(newPoly.points, polygonz);
 
 		//console.log(intersections);
 		if(intersections){
@@ -307,7 +309,6 @@ window.onload = function() {
 				context.lineTo(point.x, point.y);
 			}
 			context.fill();
-			//context.fillStyle = 'black';
 			context.closePath();
 			context.restore();
 		}

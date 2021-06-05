@@ -3,7 +3,14 @@ var figure = 'Z';
 //var figure = '0';
 //var figure = 'P';
 //var figure = 'C';
+//var figure = 'E';
+//var figure = 'R';
+//var figure = '9';
 /* ---------- Variables ---------- */
+var points;
+var polygonVertices;
+var segment;
+
 var polygon;
 var intersectedPolygon;
 var intersections;
@@ -11,7 +18,7 @@ var newPoly;
 var polygonz;
 
 if(figure == 'S'){
-	var points = [
+	points = [
 		{x: 100, y: 100, id: 0},
 		{x: 500, y: 100, id: 1},
 		{x: 500, y: 400, id: 2},
@@ -25,14 +32,15 @@ if(figure == 'S'){
 		{x: 400, y: 200, id: 10},
 		{x: 100, y: 200, id: 11}
 	];
-	var polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-	var segment = [
-		{x: 300, y: 150},
-		//{x: 410, y: 590}
-		{x: 300, y: 550}
+	polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+	segment = [
+		{x: 300, y: 150},							// default [solved]
+		{x: 300, y: 550}							// default [solved]
+		//{x: 500, y: 600},						// right border [solved]
+		//{x: 500, y: 150}						// right border [solved]
 	];
 }else if(figure == 'Z'){
-	var points = [
+	points = [
 		{x: 600-100+10, y: 200-100, id: 0},
 		{x: 400-100+10, y: 300-100, id: 1},
 		{x: 700-100+10, y: 500-100, id: 2},
@@ -44,26 +52,32 @@ if(figure == 'S'){
 		{x: 400-100+10, y: 400-100, id: 8},
 		{x: 100-100+10, y: 200-100, id: 9}
 	];
-	var polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-	var segment = [
-		{x: 150+10, y: 150},
-		{x: 400+10, y: 400}
+	polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+	segment = [
+		//{x: 150+10, y: 150},				// default [solved]
+		//{x: 400+10, y: 400}					// default [solved]
+		{x: 400-100+10, y: 500},			// middle line [solved]
+		{x: 400-100+10, y: 220} 			// middle line [solved]
+		//{x: 700-100+10, y: 100},		// right border [solved]
+		//{x: 700-100+10, y: 700-100}	// right border [solved]
 	];
 }else if(figure == 'P'){
-	var points = [
+	points = [
 		{x: 250, y: 100, id: 0},
 		{x: 400, y: 210, id: 1},
 		{x: 340, y: 420, id: 2},
 		{x: 160, y: 420, id: 3},
 		{x: 100, y: 210, id: 4},
 	];
-	var polygonVertices = [0, 1, 2, 3, 4];
-	var segment = [
-		{x: 140, y: 275},
-		{x: 360, y: 220}
+	polygonVertices = [0, 1, 2, 3, 4];
+	segment = [
+		{x: 140, y: 275},							// default [solved]
+		{x: 360, y: 220}							// default [solved]
+		//{x: 400, y: 210},						// one vertex tan [solved]
+		//{x: 300, y: 100},						// one vertex tan [solved]
 	];
 }else if(figure == 'C'){
-	var points = [
+	points = [
 		{x: 300, y: 100, id: 0},
 		{x: 500, y: 100, id: 1},
 		{x: 500, y: 300, id: 2},
@@ -77,29 +91,77 @@ if(figure == 'S'){
 		{x: 100, y: 300, id: 10},
 		{x: 300, y: 300, id: 11}
 	];
-	var polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-	var segment = [
-		// vertical line 
-		{x: 300, y: 200},
-		{x: 300, y: 600}
-		// horizontal line
-		//{x: 200, y: 100},
-		//{x: 600, y: 100}
+	polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+	segment = [ 
+		{x: 300, y: 200}, 						// vertical line [solved]
+		{x: 300, y: 600}							// vertical line [solved]
+		//{x: 200, y: 100},						// horizontal line [solved]
+		//{x: 600, y: 100}						// horizontal line [solved]
+	];
+}else if(figure == 'E'){
+	points = [
+		{x: 200, y: 100, id: 0},
+		{x: 700, y: 100, id: 1},
+		{x: 700, y: 200, id: 2},
+		{x: 400, y: 200, id: 3},
+		{x: 400, y: 300, id: 4},
+		{x: 600, y: 300, id: 5},
+		{x: 600, y: 400, id: 6},
+		{x: 400, y: 400, id: 7},
+		{x: 400, y: 500, id: 8},
+		{x: 700, y: 500, id: 9},
+		{x: 700, y: 600, id: 10},
+		{x: 200, y: 600, id: 11}
+	];
+	polygonVertices = [0, 1, 2, 3 , 4, 5 , 6, 7, 8, 9, 10, 11];
+	segment = [
+		{x: 600, y: 400},							// default tan edge [solved]
+		{x: 600, y: 500}							// default tan edge [solved]
+	];
+}else if(figure == 'R'){
+	points = [
+		{x: 100, y: 100, id: 0},
+		{x: 500, y: 100, id: 1},
+		{x: 500, y: 310, id: 2},
+		{x: 100, y: 310, id: 3},
+	];
+	polygonVertices = [0, 1, 2, 3];
+	segment = [
+		{x: 200, y: 120},							// default [solved]
+		{x: 400, y: 300}							// default [solved]
+	];
+}else if(figure == '9'){
+	points = [
+		{x: 100, y: 100, id: 0},
+		{x: 300, y: 100, id: 1},
+		{x: 400, y: 300, id: 2},
+		{x: 400, y: 450, id: 3},
+		{x: 350, y: 600, id: 4},
+		{x: 250, y: 700, id: 5},
+		{x: 100, y: 700, id: 6},
+		{x:  10, y: 500, id: 7},
+		{x:  10, y: 300, id: 8},
+	];
+	polygonVertices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+	segment = [
+		{x: 400, y: 300},							// default [solved]
+		{x: 250, y: 700}							// default [solved]
 	];
 }else{ // default polygon
-	var points = [
-		{x: 150, y: 100},
-		{x: 560, y: 150},
-		{x: 550, y: 480},
-		{x: 400, y: 620},
-		{x: 320, y: 420},
-		{x: 100, y: 400}
+	points = [
+		{x: 150, y: 100, id: 0},
+		{x: 560, y: 150, id: 1},
+		{x: 550, y: 480, id: 2},
+		{x: 400, y: 620, id: 3},
+		{x: 320, y: 420, id: 4},
+		{x: 100, y: 400, id: 5}
 	];
-	var polygonVertices = [0, 1, 2, 3, 4, 5];
-	var segment = [
-		{x: 200, y: 370},
-		{x: 410, y: 590}
-		//{x: 410, y: 375}
+	polygonVertices = [0, 1, 2, 3, 4, 5];
+	segment = [
+		{x: 200, y: 370},							// default [solved]
+		{x: 410, y: 590}							// default [solved]
+		//{x: 320, y: 420},						// coincident [solved]
+		//{x: 120, y: 285}						// coincident [solved]
 	];
 
 }
@@ -128,14 +190,14 @@ window.onload = function() {
 
 		intersectedPolygon = intersectPolygon(s1, s2, polygon);
 		intersections = intersectedPolygon.intersections;
-		newPoly = intersectedPolygon.polygon;
+		/*newPoly = intersectedPolygon.polygon;
 
 		// normal case
-		if(intersections)
+		if(intersectedPolygon.visit)
 			polygonz = visitPolygon(newPoly, intersections);
 		// collinear or no intersection case
 		else
-			polygonz = partitionLine(s1, s2, newPoly);
+			polygonz = partitionLine(s1, s2, newPoly, intersections);*/
 
 		render(partitions=false);
 	}
@@ -150,11 +212,11 @@ window.onload = function() {
 		newPoly = intersectedPolygon.polygon;
 
 		// normal case
-		if(intersections)
+		if(intersectedPolygon.visit)
 			polygonz = visitPolygon(newPoly, intersections);
 		// collinear or no intersection case
 		else
-			polygonz = partitionLine(s1, s2, newPoly);
+			polygonz = partitionLine(s1, s2, newPoly, intersections);
 			
 		console.log('\nPolygons: ');
 		console.log(polygonz);
@@ -182,10 +244,11 @@ window.onload = function() {
 	function render(partitions=true) {
 		context.clearRect(0, 0, width, height);
 
+		if(partitions){
+			drawPartitions(newPoly.points, polygonz);
+		}
 		// draw polygon
 		drawPoly(polygon);
-		if(partitions)
-			drawPartitions(newPoly.points, polygonz);
 
 
 		//console.log(intersections);
@@ -194,12 +257,13 @@ window.onload = function() {
 				drawIntersection(intersections[i], name=intersections[i].id);
 				drawExtended(s1, s2, intersections[i]);
 			}
-		}/*else
-			console.log("No Intersection!");*/
+		}else
+			console.log("No Intersection!");
 
 		drawPoint(s1);
 		drawPoint(s2);
 		drawSegment(s1, s2);
+		drawBounds(newPoly);
 
 	}
 
@@ -246,11 +310,20 @@ window.onload = function() {
 		}
 	}
 
-	function drawSegment(p0, p1, proj=false) { 
+	function drawSegment(p0, p1, proj=false, bound=false) { 
 		context.beginPath();
 		if(proj){
 			context.setLineDash([10, 10]);
-			context.strokeStyle = '#ff0000';
+			context.strokeStyle = '#ff0000'; //red
+			context.moveTo(p0.x, p0.y);
+			context.lineTo(p1.x, p1.y);
+			//context.lineWidth = 1;
+			context.stroke();
+			context.setLineDash([]);
+			context.strokeStyle = 'black';
+		}else if(bound){
+			context.setLineDash([5, 10]);
+			context.strokeStyle = 'green'; //green
 			context.moveTo(p0.x, p0.y);
 			context.lineTo(p1.x, p1.y);
 			//context.lineWidth = 1;
@@ -293,8 +366,8 @@ window.onload = function() {
 		context.stroke();
 		// drawing vertices
 		for(var i = 0; i < poly.points.length; i++)
-			drawPoint(poly.points[i], size=2);
-	
+				drawPoint(poly.points[i], size=2);
+		
 		// drawing names
 		for(var i = 0; i < poly.points.length; i++)		
 			context.fillText(i, poly.points[i].x, poly.points[i].y);
@@ -313,7 +386,7 @@ window.onload = function() {
 
 		function randomHsl(){
 			// hue, saturation, lightness, alpha
-			return 'hsla(' + (Math.random() * 360) + ', 80%, 65%, 0.32)';
+			return 'hsla(' + (Math.random() * 360) + ', 74%, 60%, 0.47)';
 		}
 
 		function drawPart(subIds, color='white'){
@@ -335,6 +408,23 @@ window.onload = function() {
 		for(var i=0; i<subpolys.length; i++)
 			drawPart(subpolys[i], color=randomHsl());
 		
+	}
+
+	function drawBounds(poly){
+		var A = poly.bounds.minX;
+		var B = poly.bounds.maxX;
+		var C = poly.bounds.minY;
+		var D = poly.bounds.maxY;
+		// drawing segments
+		drawSegment(A, B, proj=false, bound=true);
+		drawSegment(B, C, proj=false, bound=true);
+		drawSegment(C, D, proj=false, bound=true);
+		drawSegment(D, A, proj=false, bound=true);
+		// drawing points
+		drawPoint(A, size=4);
+		drawPoint(B, size=4);
+		drawPoint(C, size=4);
+		drawPoint(D, size=4);
 	}
 
 	
@@ -372,19 +462,28 @@ window.onload = function() {
 	intersectedPolygon = intersectPolygon(s1, s2, polygon);
 	intersections = intersectedPolygon.intersections;
 	newPoly = intersectedPolygon.polygon;
+	console.log('Intersected Polygon: ');
+	console.log(newPoly);
+	console.log('\n');
+	//visitPolygonGraph(newPoly);
 
 	// normal case
-	if(intersections)
+	if(intersectedPolygon.visit)
+		//console.log(intersections);
 		polygonz = visitPolygon(newPoly, intersections);
 	// collinear or no intersection case
 	else
-		polygonz = partitionLine(s1, s2, newPoly);
+		polygonz = partitionLine(s1, s2, newPoly, intersections);
+
+	
 		
 	console.log('\nPolygons: ');
-	console.log(polygonz);
+	for(var i=0; i<polygonz.length; i++)
+		console.log(polygonz[i]);
 	console.log('\n');
 
 	// rendering scene
+	//translatePoly(newPoly);
 	render();
 
 	/* ---------- // ---------- */
